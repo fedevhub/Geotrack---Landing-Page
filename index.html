@@ -1,0 +1,1271 @@
+<!doctype html>
+<html lang="id" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GeoTrack — Pantau Lokasi Kendaraan & Aset Real-Time</title>
+    <meta
+      name="description"
+      content="GeoTrack: pantau lokasi kendaraan dan aset kamu real-time dari mana saja."
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['"Plus Jakarta Sans"', "system-ui", "sans-serif"],
+            },
+            colors: {
+              brand: { DEFAULT: "#12B35A", dark: "#0E9A4D", soft: "#E7F8EE" },
+              geo: "#2563EB",
+              ink: "#0F172A",
+              mist: "#EEF5FF",
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      /* ====== ANIMASI HERO (sama seperti kode referensi) ====== */
+      @keyframes float {
+        0%,
+        100% {
+          transform: rotate(-6deg) translateY(0);
+        }
+        50% {
+          transform: rotate(-6deg) translateY(-12px);
+        }
+      }
+      @keyframes pulseLed {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.35;
+        }
+      }
+      @keyframes ripple {
+        0% {
+          transform: scale(0.9);
+          opacity: 0.7;
+        }
+        100% {
+          transform: scale(2.6);
+          opacity: 0;
+        }
+      }
+      @keyframes pinMove {
+        0%,
+        100% {
+          left: 30%;
+          top: 70%;
+        }
+        35% {
+          left: 58%;
+          top: 42%;
+        }
+        70% {
+          left: 78%;
+          top: 30%;
+        }
+      }
+      @keyframes pinShadow {
+        0%,
+        100% {
+          transform: translateX(-50%) scale(1);
+          opacity: 0.7;
+        }
+        50% {
+          transform: translateX(-50%) scale(0.6);
+          opacity: 0.35;
+        }
+      }
+      @keyframes dash {
+        to {
+          stroke-dashoffset: -30;
+        }
+      }
+
+      .device {
+        animation: float 6s ease-in-out infinite;
+      }
+      .led {
+        animation: pulseLed 2s infinite;
+      }
+      .ripple {
+        animation: ripple 3.4s ease-out infinite;
+      }
+      .ripple:nth-of-type(2) {
+        animation-delay: 1.1s;
+      }
+      .ripple:nth-of-type(3) {
+        animation-delay: 2.2s;
+      }
+      .pin {
+        animation: pinMove 9s ease-in-out infinite;
+        transform: translate(-50%, -100%);
+      }
+      .pin::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        bottom: -4px;
+        width: 16px;
+        height: 5px;
+        border-radius: 50%;
+        background: rgba(18, 179, 90, 0.32);
+        animation: pinShadow 1.8s ease-in-out infinite;
+      }
+      .route-line {
+        animation: dash 1.4s linear infinite;
+      }
+
+      /* Peta */
+      .map-bg {
+        background-color: #e8eff8;
+        background-image:
+          linear-gradient(rgba(148, 170, 200, 0.28) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(148, 170, 200, 0.28) 1px, transparent 1px);
+        background-size: 24px 24px;
+      }
+      .map-bg::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(
+            62deg,
+            transparent 38%,
+            #c9d6ec 38%,
+            #c9d6ec 52%,
+            transparent 52%
+          ),
+          radial-gradient(circle at 82% 22%, #dceaf6 0 22%, transparent 22%);
+      }
+
+      /* FAQ accordion */
+      .faq-body {
+        display: grid;
+        grid-template-rows: 0fr;
+        transition: grid-template-rows 0.35s ease;
+      }
+      .faq-item.open .faq-body {
+        grid-template-rows: 1fr;
+      }
+      .faq-item.open .faq-icon {
+        transform: rotate(180deg);
+      }
+
+      /* Reveal on scroll */
+      .reveal {
+        opacity: 0;
+        transform: translateY(24px);
+        transition:
+          opacity 0.7s ease,
+          transform 0.7s ease;
+      }
+      .reveal.in {
+        opacity: 1;
+        transform: none;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation: none !important;
+          transition-duration: 0.01ms !important;
+        }
+        .reveal {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      section[id] {
+        scroll-margin-top: 68px;
+      }
+    </style>
+  </head>
+
+  <body class="font-sans text-ink bg-white antialiased overflow-x-hidden">
+    <!-- ================= NAVBAR ================= -->
+    <header
+      id="header"
+      class="fixed top-0 inset-x-0 z-50 bg-transparent border-b border-transparent transition-all duration-300"
+    >
+      <div
+        class="max-w-6xl mx-auto px-5 h-[68px] flex items-center justify-between"
+      >
+        <a href="#home" class="flex items-center gap-2.5">
+          <span
+            class="w-9 h-9 rounded-xl bg-gradient-to-br from-geo to-brand grid place-items-center shadow-md"
+          >
+            <img src="GeoTrack_Navigation_Logo_No_White_Edges.png" alt="">
+          </span>
+          <span class="text-lg font-extrabold tracking-tight"
+            ><span class="text-geo">Geo</span
+            ><span class="text-brand">Track</span></span
+          >
+        </a>
+
+        <nav
+          class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600"
+          id="navLinks"
+        >
+          <a href="#home" class="nav-link text-brand">Home</a>
+          <a href="#cara-kerja" class="nav-link hover:text-brand transition"
+            >Cara Kerja</a
+          >
+          <a href="#fitur" class="nav-link hover:text-brand transition"
+            >Fitur</a
+          >
+          <a href="#gallery" class="nav-link hover:text-brand transition"
+            >Gallery</a
+          >
+          <a href="#faq" class="nav-link hover:text-brand transition">FAQ</a>
+          <a href="#contact" class="nav-link hover:text-brand transition"
+            >Contact</a
+          >
+        </nav>
+
+        <div class="flex items-center gap-3">
+          <a
+            href="#contact"
+            class="hidden sm:inline-flex bg-brand hover:bg-brand-dark text-white text-sm font-bold px-5 py-2.5 rounded-lg shadow-lg shadow-brand/25 transition"
+            >Pesan Sekarang</a
+          >
+          <button
+            id="burger"
+            class="md:hidden w-10 h-10 grid place-items-center rounded-lg bg-slate-100"
+            aria-label="Buka menu"
+          >
+            <svg
+              class="w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.4"
+              stroke-linecap="round"
+            >
+              <path d="M4 7h16M4 12h16M4 17h16" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Menu mobile -->
+      <div
+        id="mobileMenu"
+        class="hidden md:hidden border-t border-slate-100 bg-white px-5 pb-4"
+      >
+        <a
+          href="#home"
+          class="block py-3 text-sm font-semibold border-b border-slate-100"
+          >Home</a
+        >
+        <a
+          href="#cara-kerja"
+          class="block py-3 text-sm font-semibold border-b border-slate-100"
+          >Cara Kerja</a
+        >
+        <a
+          href="#fitur"
+          class="block py-3 text-sm font-semibold border-b border-slate-100"
+          >Fitur</a
+        >
+        <a
+          href="#gallery"
+          class="block py-3 text-sm font-semibold border-b border-slate-100"
+          >Gallery</a
+        >
+        <a
+          href="#faq"
+          class="block py-3 text-sm font-semibold border-b border-slate-100"
+          >FAQ</a
+        >
+        <a href="#contact" class="block py-3 text-sm font-semibold">Contact</a>
+        <a
+          href="#contact"
+          class="mt-2 block text-center bg-brand text-white text-sm font-bold px-5 py-3 rounded-lg"
+          >Pesan Sekarang</a
+        >
+      </div>
+    </header>
+
+    <!-- ================= HERO ================= -->
+    <section
+      id="home"
+      class="relative bg-gradient-to-b pt-[58px] from-mist via-[#F3F8FF] to-white overflow-hidden"
+    >
+      <div
+        class="absolute -top-24 -right-24 w-[420px] h-[420px] rounded-full bg-brand/10 blur-3xl"
+      ></div>
+      <div
+        class="absolute -bottom-32 -left-24 w-[380px] h-[380px] rounded-full bg-geo/10 blur-3xl"
+      ></div>
+
+      <div
+        class="relative max-w-6xl mx-auto px-5 py-14 md:py-20 grid lg:grid-cols-2 gap-14 items-center"
+      >
+        <!-- Teks -->
+        <div class="reveal">
+          <span
+            class="inline-flex items-center gap-2 bg-white border border-slate-200 text-geo text-xs font-semibold px-3.5 py-1.5 rounded-full shadow-sm mb-5"
+          >
+            <svg
+              class="w-3.5 h-3.5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.3"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            Pelacakan real-time
+          </span>
+          <h1
+            class="text-4xl sm:text-5xl lg:text-[52px] font-extrabold leading-[1.12] tracking-tight"
+          >
+            Pantau lokasi kendaraan &amp; aset kamu
+            <span class="text-brand">detik ini juga</span>, dari mana saja.
+          </h1>
+          <p class="mt-5 text-slate-600 max-w-md leading-relaxed">
+            Pasang dalam hitungan menit, lalu pantau posisi, riwayat perjalanan,
+            dan status aset langsung dari aplikasi, kapan pun kamu butuh.
+          </p>
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a
+              href="#contact"
+              class="inline-flex items-center gap-2 bg-brand hover:bg-brand-dark text-white font-bold text-sm px-6 py-3.5 rounded-lg shadow-lg shadow-brand/30 transition hover:-translate-y-0.5"
+            >
+              <svg
+                class="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M6 2h12v20l-3-2-3 2-3-2-3 2V2Z" />
+                <path d="M9 8h6M9 12h6" />
+              </svg>
+              Pesan Sekarang
+            </a>
+            <a
+              href="#fitur"
+              class="inline-flex items-center gap-2 bg-white border border-geo text-geo hover:bg-geo/5 font-bold text-sm px-6 py-3.5 rounded-lg transition"
+            >
+              <svg
+                class="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"
+                />
+                <path d="M14 3v5h5M9 13h6M9 17h6" />
+              </svg>
+              Lihat Fitur
+            </a>
+          </div>
+        </div>
+
+        <!-- Visual animasi -->
+        <div
+          class="reveal relative max-w-[520px] w-full mx-auto lg:ml-auto pt-10"
+        >
+          <!-- ripple -->
+          <div class="absolute right-6 top-2 w-24 h-24 pointer-events-none">
+            <div
+              class="ripple absolute inset-0 rounded-full border border-brand/40"
+            ></div>
+            <div
+              class="ripple absolute inset-0 rounded-full border border-brand/40"
+            ></div>
+            <div
+              class="ripple absolute inset-0 rounded-full border border-brand/40"
+            ></div>
+          </div>
+
+          <!-- device melayang -->
+          <div
+            class="device absolute right-2 sm:right-0 -top-1 z-20 w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-gradient-to-br from-white to-[#DDF5E8] border border-white shadow-[0_18px_40px_rgba(18,179,90,.25)] grid place-items-center"
+          >
+            <span
+              class="led absolute top-3 right-3 w-2 h-2 rounded-full bg-brand shadow-[0_0_0_4px_rgba(18,179,90,.18),0_0_10px_#12B35A]"
+            ></span>
+            <span
+              class="w-12 h-12 rounded-full border border-dashed border-brand/50 bg-brand/10 grid place-items-center"
+            >
+              <svg
+                class="w-6 h-6 text-brand"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+            </span>
+            <span
+              class="absolute bottom-2 text-[7px] sm:text-[8px] tracking-[.16em] font-bold text-slate-400"
+              >GEOTRACK</span
+            >
+          </div>
+
+          <!-- dashboard card -->
+          <div
+            class="relative z-10 bg-white/90 backdrop-blur rounded-3xl border border-white shadow-[0_30px_70px_rgba(15,23,42,.18)] p-3 sm:p-4 rotate-[1.2deg]"
+          >
+            <div class="flex items-center gap-1.5 px-1 pb-3">
+              <span class="w-2.5 h-2.5 rounded-full bg-[#FF5F57]"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-[#FEBC2E]"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-[#28C840]"></span>
+              <span class="ml-2 text-[11px] font-semibold text-slate-400"
+                >GeoTrack — Dashboard</span
+              >
+            </div>
+
+            <!-- peta -->
+            <div
+              class="map-bg relative h-44 sm:h-56 rounded-2xl overflow-hidden"
+            >
+              <svg
+                class="absolute inset-0 w-full h-full"
+                viewBox="0 0 400 230"
+                preserveAspectRatio="none"
+              >
+                <path
+                  class="route-line"
+                  d="M60 190 Q 140 160 190 110 T 290 80 L 370 50"
+                  fill="none"
+                  stroke="#12B35A"
+                  stroke-width="3.5"
+                  stroke-linecap="round"
+                  stroke-dasharray="10 8"
+                  opacity=".9"
+                />
+              </svg>
+              <div class="pin absolute z-10">
+                <svg
+                  class="w-8 h-8 text-brand drop-shadow-[0_4px_8px_rgba(18,179,90,.5)]"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z"
+                  />
+                </svg>
+              </div>
+              <div
+                class="absolute left-3 bottom-3 z-10 bg-white rounded-xl shadow-lg px-3 py-2 flex items-center gap-2.5"
+              >
+                <span
+                  class="w-7 h-7 rounded-lg bg-brand-soft text-brand grid place-items-center"
+                >
+                  <svg
+                    class="w-4 h-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M3 12h4l3-9 4 18 3-9h4" />
+                  </svg>
+                </span>
+                <div>
+                  <p
+                    class="text-[8px] font-bold tracking-wider text-slate-400 uppercase leading-none"
+                  >
+                    Kecepatan saat ini
+                  </p>
+                  <p class="text-xs font-extrabold mt-1">32 km/jam</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- statistik -->
+            <div class="grid grid-cols-2 gap-2.5 mt-3">
+              <div
+                class="bg-slate-50 border border-slate-100 rounded-xl px-3.5 py-2.5"
+              >
+                <p
+                  class="text-[9px] font-bold tracking-wider text-slate-400 uppercase"
+                >
+                  Jarak hari ini
+                </p>
+                <p class="text-sm font-extrabold">
+                  24,8 km
+                  <span class="text-[10px] text-brand font-bold">+12%</span>
+                </p>
+              </div>
+              <div
+                class="bg-slate-50 border border-slate-100 rounded-xl px-3.5 py-2.5"
+              >
+                <p
+                  class="text-[9px] font-bold tracking-wider text-slate-400 uppercase"
+                >
+                  Status perangkat
+                </p>
+                <p class="text-sm font-extrabold">
+                  Online
+                  <span class="text-[10px] text-brand font-bold">4G</span>
+                </p>
+              </div>
+              <div
+                class="bg-slate-50 border border-slate-100 rounded-xl px-3.5 py-2.5"
+              >
+                <p
+                  class="text-[9px] font-bold tracking-wider text-slate-400 uppercase"
+                >
+                  Baterai alat
+                </p>
+                <p class="text-sm font-extrabold">86%</p>
+              </div>
+              <div
+                class="bg-slate-50 border border-slate-100 rounded-xl px-3.5 py-2.5"
+              >
+                <p
+                  class="text-[9px] font-bold tracking-wider text-slate-400 uppercase"
+                >
+                  Parkir terakhir
+                </p>
+                <p class="text-sm font-extrabold">14:22</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= CARA KERJA ================= -->
+    <section id="cara-kerja" class="py-20 md:py-24 bg-white">
+      <div class="max-w-6xl mx-auto px-5">
+        <div class="text-center reveal">
+          <span
+            class="inline-block bg-brand-soft text-brand text-[11px] font-bold tracking-wider uppercase px-3.5 py-1.5 rounded-full mb-4"
+            >Cara Kerja</span
+          >
+          <h2
+            class="text-3xl sm:text-4xl md:text-[42px] font-extrabold tracking-tight"
+          >
+            Tiga langkah. Langsung terpantau.
+          </h2>
+          <p class="mt-3 text-slate-500 text-sm sm:text-base">
+            Tanpa teknisi, tanpa alat rumit. Cukup pasang perangkatnya dan buka
+            aplikasinya.
+          </p>
+        </div>
+
+        <div class="relative mt-14 grid md:grid-cols-3 gap-10 md:gap-6">
+          <div
+            class="hidden md:block absolute top-8 left-[18%] right-[18%] border-t-2 border-dashed border-slate-200"
+          ></div>
+
+          <div class="reveal relative text-center">
+            <div
+              class="relative mx-auto w-16 h-16 rounded-2xl bg-white border border-slate-200 shadow-md grid place-items-center text-brand"
+            >
+              <svg
+                class="w-7 h-7"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.9"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76Z"
+                />
+              </svg>
+            </div>
+            <p
+              class="mt-5 text-[11px] font-bold tracking-[.14em] text-slate-400 uppercase"
+            >
+              Langkah 01
+            </p>
+            <h3 class="mt-1 text-lg font-extrabold">Pasang alatnya</h3>
+            <p
+              class="mt-2 text-sm text-slate-500 max-w-xs mx-auto leading-relaxed"
+            >
+              Tempel atau sambungkan GeoTrack pada kendaraan. Magnet kuat +
+              kabel opsional. Tanpa bongkar mesin.
+            </p>
+          </div>
+
+          <div class="reveal relative text-center">
+            <div
+              class="relative mx-auto w-16 h-16 rounded-2xl bg-white border border-slate-200 shadow-md grid place-items-center text-brand"
+            >
+              <svg
+                class="w-7 h-7"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.9"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M5 12.55a11 11 0 0 1 14.08 0" />
+                <path d="M1.42 9a16 16 0 0 1 21.16 0" />
+                <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
+                <path d="M12 20h.01" />
+              </svg>
+            </div>
+            <p
+              class="mt-5 text-[11px] font-bold tracking-[.14em] text-slate-400 uppercase"
+            >
+              Langkah 02
+            </p>
+            <h3 class="mt-1 text-lg font-extrabold">Alat kirim data lokasi</h3>
+            <p
+              class="mt-2 text-sm text-slate-500 max-w-xs mx-auto leading-relaxed"
+            >
+              Modul GPS + GSM 4G mengirim koordinat ke server setiap 10 detik.
+              Otomatis tanpa kamu sentuh.
+            </p>
+          </div>
+
+          <div class="reveal relative text-center">
+            <div
+              class="relative mx-auto w-16 h-16 rounded-2xl bg-white border border-slate-200 shadow-md grid place-items-center text-brand"
+            >
+              <svg
+                class="w-7 h-7"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.9"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="2" y="4" width="20" height="14" rx="2" />
+                <path d="M8 22h8M12 18v4" />
+              </svg>
+            </div>
+            <p
+              class="mt-5 text-[11px] font-bold tracking-[.14em] text-slate-400 uppercase"
+            >
+              Langkah 03
+            </p>
+            <h3 class="mt-1 text-lg font-extrabold">Pantau lewat web / app</h3>
+            <p
+              class="mt-2 text-sm text-slate-500 max-w-xs mx-auto leading-relaxed"
+            >
+              Buka dashboard di HP atau laptop. Lihat titik lokasi, kecepatan,
+              dan riwayat perjalanan secara live.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= FITUR ================= -->
+    <section id="fitur" class="py-20 md:py-24 bg-mist">
+      <div class="max-w-6xl mx-auto px-5">
+        <div class="grid md:grid-cols-2 gap-4 md:items-end reveal">
+          <div>
+            <span
+              class="inline-block bg-brand-soft text-brand text-[11px] font-bold tracking-wider uppercase px-3.5 py-1.5 rounded-full mb-4"
+              >Fitur</span
+            >
+            <h2
+              class="text-3xl sm:text-4xl md:text-[42px] font-extrabold tracking-tight leading-tight"
+            >
+              Lebih dari<br />sekadar
+              <span class="text-brand">titik di peta</span>
+            </h2>
+          </div>
+          <p
+            class="text-slate-500 text-sm md:text-right md:max-w-xs md:ml-auto"
+          >
+            Dari lokasi terkini sampai jejak perjalanan, semuanya jelas dalam
+            satu aplikasi.
+          </p>
+        </div>
+
+        <div class="mt-10 border-t border-slate-300/80">
+          <!-- item -->
+          <div
+            class="reveal grid grid-cols-[auto_1fr] md:grid-cols-[auto_1fr_1fr] items-center gap-x-5 md:gap-x-8 gap-y-2 py-7 border-b border-slate-300/80 group"
+          >
+            <span class="text-sm font-semibold text-slate-500 md:pl-4">01</span>
+            <h3
+              class="text-2xl sm:text-3xl font-extrabold tracking-tight group-hover:text-brand transition"
+            >
+              Live Tracking
+            </h3>
+            <p
+              class="col-span-2 md:col-span-1 text-sm text-slate-500 md:text-right md:max-w-sm md:ml-auto"
+            >
+              Posisi diperbarui tiap 10 detik. Lihat kendaraan bergerak di peta
+              secara real-time.
+            </p>
+          </div>
+          <div
+            class="reveal grid grid-cols-[auto_1fr] md:grid-cols-[auto_1fr_1fr] items-center gap-x-5 md:gap-x-8 gap-y-2 py-7 border-b border-slate-300/80 group"
+          >
+            <span class="text-sm font-semibold text-slate-500 md:pl-4">02</span>
+            <h3
+              class="text-2xl sm:text-3xl font-extrabold tracking-tight group-hover:text-brand transition"
+            >
+              Riwayat Perjalanan
+            </h3>
+            <p
+              class="col-span-2 md:col-span-1 text-sm text-slate-500 md:text-right md:max-w-sm md:ml-auto"
+            >
+              Simpan rute hingga 90 hari. Lihat jam berangkat, berhenti di mana,
+              dan berapa lama.
+            </p>
+          </div>
+          <div
+            class="reveal grid grid-cols-[auto_1fr] md:grid-cols-[auto_1fr_1fr] items-center gap-x-5 md:gap-x-8 gap-y-2 py-7 border-b border-slate-300/80 group"
+          >
+            <span class="text-sm font-semibold text-slate-500 md:pl-4">03</span>
+            <h3
+              class="text-2xl sm:text-3xl font-extrabold tracking-tight group-hover:text-brand transition"
+            >
+              Laporan Otomatis
+            </h3>
+            <p
+              class="col-span-2 md:col-span-1 text-sm text-slate-500 md:text-right md:max-w-sm md:ml-auto"
+            >
+              Export laporan harian/mingguan ke Excel &amp; PDF. Cocok untuk
+              audit dan klaim asuransi.
+            </p>
+          </div>
+          <div
+            class="reveal grid grid-cols-[auto_1fr] md:grid-cols-[auto_1fr_1fr] items-center gap-x-5 md:gap-x-8 gap-y-2 py-7 border-b border-slate-300/80 group"
+          >
+            <span class="text-sm font-semibold text-slate-500 md:pl-4">04</span>
+            <h3
+              class="text-2xl sm:text-3xl font-extrabold tracking-tight group-hover:text-brand transition"
+            >
+              Keamanan Data
+            </h3>
+            <p
+              class="col-span-2 md:col-span-1 text-sm text-slate-500 md:text-right md:max-w-sm md:ml-auto"
+            >
+              Enkripsi TLS 1.3, server di Indonesia, akses dua faktor. Data
+              lokasi tidak dijual ke pihak ketiga.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= GALLERY ================= -->
+    <section id="gallery" class="py-20 md:py-24 bg-white">
+      <div class="max-w-6xl mx-auto px-5">
+        <div class="text-center reveal">
+          <span
+            class="inline-block bg-brand-soft text-brand text-[11px] font-bold tracking-wider uppercase px-3.5 py-1.5 rounded-full mb-4"
+            >Gallery</span
+          >
+          <h2
+            class="text-3xl sm:text-4xl md:text-[42px] font-extrabold tracking-tight"
+          >
+            Lihat GeoTrack dari dekat
+          </h2>
+          <p class="mt-3 text-slate-500 text-sm sm:text-base">
+            Dari dashboard web sampai perangkat pelacaknya, semua bisa kamu
+            intip di sini.
+          </p>
+        </div>
+
+        <!--
+      Ganti div placeholder abu-abu dengan gambar:
+      <img src="foto.jpg" alt="..." class="w-full h-full object-cover rounded-3xl">
+    -->
+        <div class="mt-12 space-y-4 md:space-y-5">
+          <!-- Baris 1 -->
+          <div class="grid grid-cols-1 sm:grid-cols-5 gap-4 md:gap-5">
+            <div
+              class="reveal sm:col-span-3 h-56 sm:h-64 md:h-[340px] rounded-3xl bg-[#D9D9D9] overflow-hidden"
+            ></div>
+            <div
+              class="reveal sm:col-span-2 h-56 sm:h-64 md:h-[340px] rounded-3xl bg-[#D9D9D9] overflow-hidden"
+            ></div>
+          </div>
+          <!-- Baris 2 -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-5">
+            <div
+              class="reveal h-56 sm:h-64 md:h-[340px] rounded-3xl bg-[#D9D9D9] overflow-hidden"
+            ></div>
+            <div
+              class="reveal h-56 sm:h-64 md:h-[340px] rounded-3xl bg-[#D9D9D9] overflow-hidden"
+            ></div>
+            <div
+              class="reveal h-56 sm:h-64 md:h-[340px] rounded-3xl bg-[#D9D9D9] overflow-hidden"
+            ></div>
+          </div>
+          <!-- Baris 3 -->
+          <div class="grid grid-cols-1 sm:grid-cols-5 gap-4 md:gap-5">
+            <div
+              class="reveal sm:col-span-2 h-56 sm:h-64 md:h-[340px] rounded-3xl bg-[#D9D9D9] overflow-hidden"
+            ></div>
+            <div
+              class="reveal sm:col-span-3 h-56 sm:h-64 md:h-[340px] rounded-3xl bg-[#D9D9D9] overflow-hidden"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= FAQ ================= -->
+    <section id="faq" class="py-20 md:py-24 bg-mist">
+      <div
+        class="max-w-6xl mx-auto px-5 grid lg:grid-cols-2 gap-10 lg:gap-14 items-start"
+      >
+        <div class="reveal">
+          <span
+            class="inline-block bg-brand-soft text-brand text-[11px] font-bold tracking-wider uppercase px-3.5 py-1.5 rounded-full mb-4"
+            >FAQ</span
+          >
+          <h2
+            class="text-3xl sm:text-4xl md:text-[42px] font-extrabold tracking-tight leading-tight"
+          >
+            Pertanyaan yang paling sering muncul
+          </h2>
+          <p class="mt-4 text-slate-600 text-sm sm:text-base max-w-md">
+            Belum terjawab? Chat tim kami — biasanya balas di bawah 10 menit
+            pada jam kerja.
+          </p>
+
+          <div
+            class="mt-3 bg-white rounded-2xl shadow-[0_12px_30px_rgba(15,23,42,.10)] p-2 sm:p-7 max-w-md"
+          >
+            <h4 class="font-extrabold text-lg">Masih ragu?</h4>
+            <p class="mt-1 text-[13px] text-slate-500 leading-relaxed">
+              Konsultasi gratis 15 menit dengan tim kami. Kami bantu kasih
+              pilihan sesuai kebutuhan, tanpa paksaan.
+            </p>
+            <a
+              href="https://wa.me/6282335640458?text=Halo%20GeoTrack%2C%20saya%20mau%20konsultasi"
+              target="_blank"
+              rel="noopener"
+              class="mt-3 flex items-center justify-center gap-2 bg-brand hover:bg-brand-dark text-white text-sm font-bold py-3 rounded-lg transition"
+            >
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M17.5 14.4c-.3-.2-1.7-.8-2-.9-.3-.1-.5-.2-.7.2s-.8.9-.9 1.1c-.2.2-.3.2-.6.1-.3-.2-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.2-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1.1 2.8 1.2 3c.2.2 2.1 3.2 5.1 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.7-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.2-.6-.4Z"
+                />
+                <path
+                  d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Z"
+                />
+              </svg>
+              Chat via WhatsApp
+            </a>
+          </div>
+        </div>
+
+        <!-- Accordion -->
+        <div class="reveal space-y-3" id="faqList">
+          <div
+            class="faq-item bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
+          >
+            <button
+              class="faq-q w-full flex items-center justify-between gap-4 text-left px-5 py-4 text-sm font-bold"
+              aria-expanded="false"
+            >
+              Apakah butuh sinyal kuat? Bagaimana cakupannya?
+              <svg
+                class="faq-icon w-4 h-4 shrink-0 transition-transform duration-300"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </button>
+            <div class="faq-body">
+              <div class="overflow-hidden">
+                <p
+                  class="px-5 pb-5 text-[13.5px] text-slate-500 leading-relaxed"
+                >
+                  GeoTrack memakai jaringan 4G LTE dengan fallback ke 3G/2G,
+                  jadi cakupannya mengikuti operator seluler nasional. Di area
+                  tanpa sinyal, alat menyimpan data dan mengirimkannya otomatis
+                  begitu sinyal kembali.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="faq-item bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
+          >
+            <button
+              class="faq-q w-full flex items-center justify-between gap-4 text-left px-5 py-4 text-sm font-bold"
+              aria-expanded="false"
+            >
+              Perlu beli kartu SIM dan kuota sendiri?
+              <svg
+                class="faq-icon w-4 h-4 shrink-0 transition-transform duration-300"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </button>
+            <div class="faq-body">
+              <div class="overflow-hidden">
+                <p
+                  class="px-5 pb-5 text-[13.5px] text-slate-500 leading-relaxed"
+                >
+                  Tidak. Setiap unit sudah termasuk kartu SIM data aktif selama
+                  3 bulan pertama. Setelah itu, biaya data tergabung dalam
+                  langganan aplikasi, tanpa tagihan terpisah.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="faq-item bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
+          >
+            <button
+              class="faq-q w-full flex items-center justify-between gap-4 text-left px-5 py-4 text-sm font-bold"
+              aria-expanded="false"
+            >
+              Susah tidak cara pasangnya? Bisa sendiri?
+              <svg
+                class="faq-icon w-4 h-4 shrink-0 transition-transform duration-300"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </button>
+            <div class="faq-body">
+              <div class="overflow-hidden">
+                <p
+                  class="px-5 pb-5 text-[13.5px] text-slate-500 leading-relaxed"
+                >
+                  Bisa sendiri dalam 5 menit. Tempel dengan magnet di bawah jok
+                  atau bagasi (tanpa alat), atau sambungkan ke aki lewat kabel
+                  yang sudah disediakan.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="faq-item bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
+          >
+            <button
+              class="faq-q w-full flex items-center justify-between gap-4 text-left px-5 py-4 text-sm font-bold"
+              aria-expanded="false"
+            >
+              Garansinya bagaimana kalau alat rusak?
+              <svg
+                class="faq-icon w-4 h-4 shrink-0 transition-transform duration-300"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </button>
+            <div class="faq-body">
+              <div class="overflow-hidden">
+                <p
+                  class="px-5 pb-5 text-[13.5px] text-slate-500 leading-relaxed"
+                >
+                  Garansi resmi 12 bulan untuk kerusakan pabrikan, ditambah
+                  garansi uang kembali 14 hari. Proses klaim garansi maksimal 7
+                  hari kerja.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="faq-item bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
+          >
+            <button
+              class="faq-q w-full flex items-center justify-between gap-4 text-left px-5 py-4 text-sm font-bold"
+              aria-expanded="false"
+            >
+              Apakah data lokasi saya aman?
+              <svg
+                class="faq-icon w-4 h-4 shrink-0 transition-transform duration-300"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </button>
+            <div class="faq-body">
+              <div class="overflow-hidden">
+                <p
+                  class="px-5 pb-5 text-[13.5px] text-slate-500 leading-relaxed"
+                >
+                  Ya. Transmisi dienkripsi TLS 1.3, data disimpan di server
+                  dalam negeri, dan akun dilindungi verifikasi dua langkah. Data
+                  lokasi tidak dijual ke pihak ketiga.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="faq-item bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
+          >
+            <button
+              class="faq-q w-full flex items-center justify-between gap-4 text-left px-5 py-4 text-sm font-bold"
+              aria-expanded="false"
+            >
+              Bisa dipakai untuk banyak kendaraan sekaligus?
+              <svg
+                class="faq-icon w-4 h-4 shrink-0 transition-transform duration-300"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </button>
+            <div class="faq-body">
+              <div class="overflow-hidden">
+                <p
+                  class="px-5 pb-5 text-[13.5px] text-slate-500 leading-relaxed"
+                >
+                  Bisa. Satu akun admin dapat mengelola banyak unit sekaligus,
+                  mengelompokkannya per cabang atau proyek, dan memberi akses
+                  terbatas ke anggota tim.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= FOOTER / CONTACT ================= -->
+    <footer id="contact" class="bg-[#0F172A] border-t border-slate-200">
+      <div
+        class="max-w-6xl mx-auto px-5 py-12 flex flex-col items-center text-center"
+      >
+        <a href="#home" class="flex items-center gap-2.5">
+          <span
+            class="w-10 h-10 rounded-xl bg-gradient-to-br from-geo to-brand grid place-items-center shadow-md"
+          >
+            <img src="GeoTrack_Navigation_Logo_No_White_Edges.png" alt="">
+          </span>
+          <span class="text-xl font-extrabold tracking-tight"
+            ><span class="text-geo">Geo</span
+            ><span class="text-brand">Track</span></span
+          >
+        </a>
+
+        <nav
+          class="mt-6 flex flex-wrap justify-center gap-x-7 gap-y-3 text-sm font-semibold text-slate-200"
+        >
+          <a href="#home" class="hover:text-brand transition">Home</a>
+          <a href="#cara-kerja" class="hover:text-brand transition"
+            >Cara Kerja</a
+          >
+          <a href="#fitur" class="hover:text-brand transition">Fitur</a>
+          <a href="#gallery" class="hover:text-brand transition">Gallery</a>
+          <a href="#faq" class="hover:text-brand transition">FAQ</a>
+          <a href="#contact" class="hover:text-brand transition">Contact</a>
+        </nav>
+
+        <div class="mt-6 flex items-center gap-5 text-white">
+          <a
+            href="https://wa.me/6281234567890"
+            target="_blank"
+            rel="noopener"
+            aria-label="WhatsApp"
+            class="hover:text-brand transition"
+          >
+            <svg
+              class="w-6 h-6"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M3 21l1.65-4.9A9 9 0 1 1 8 19.4L3 21Z" />
+              <path
+                d="M9 10c0 3 2.5 5 5 5l1.2-1.2-1.7-1.1-.8.6c-.8-.4-1.6-1.2-2-2l.6-.8L10.2 8.8 9 10Z"
+              />
+            </svg>
+          </a>
+          <a
+            href="#"
+            aria-label="Instagram"
+            class="hover:text-brand transition"
+          >
+            <svg
+              class="w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="2" y="2" width="20" height="20" rx="5" />
+              <circle cx="12" cy="12" r="4" />
+              <circle
+                cx="17.5"
+                cy="6.5"
+                r="1"
+                fill="currentColor"
+                stroke="none"
+              />
+            </svg>
+          </a>
+          <a href="#" aria-label="YouTube" class="hover:text-brand transition">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M23 7.5a3 3 0 0 0-2.1-2.1C19 5 12 5 12 5s-7 0-8.9.4A3 3 0 0 0 1 7.5 31 31 0 0 0 .6 12 31 31 0 0 0 1 16.5a3 3 0 0 0 2.1 2.1C5 19 12 19 12 19s7 0 8.9-.4a3 3 0 0 0 2.1-2.1A31 31 0 0 0 23.4 12 31 31 0 0 0 23 7.5ZM9.8 15.3V8.7l5.7 3.3-5.7 3.3Z"
+              />
+            </svg>
+          </a>
+        </div>
+
+        <p class="mt-8 text-xs text-slate-300">
+          © <span id="year">2026</span> GeoTrack. All rights reserved.
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      /* Menu mobile */
+      const burger = document.getElementById("burger");
+      const mobileMenu = document.getElementById("mobileMenu");
+      burger.addEventListener("click", () =>
+        mobileMenu.classList.toggle("hidden"),
+      );
+      mobileMenu
+        .querySelectorAll("a")
+        .forEach((a) =>
+          a.addEventListener("click", () => mobileMenu.classList.add("hidden")),
+        );
+
+      /* FAQ accordion (satu terbuka sekaligus) */
+      const faqItems = document.querySelectorAll(".faq-item");
+      faqItems.forEach((item) => {
+        const btn = item.querySelector(".faq-q");
+        btn.addEventListener("click", () => {
+          const isOpen = item.classList.contains("open");
+          faqItems.forEach((i) => {
+            i.classList.remove("open");
+            i.querySelector(".faq-q").setAttribute("aria-expanded", "false");
+          });
+          if (!isOpen) {
+            item.classList.add("open");
+            btn.setAttribute("aria-expanded", "true");
+          }
+        });
+      });
+
+      /* Reveal saat scroll */
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              e.target.classList.add("in");
+              io.unobserve(e.target);
+            }
+          });
+        },
+        { threshold: 0.12 },
+      );
+      document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+
+      /* Highlight menu aktif saat scroll */
+      const sections = [
+        "home",
+        "cara-kerja",
+        "fitur",
+        "gallery",
+        "faq",
+        "contact",
+      ].map((id) => document.getElementById(id));
+      const links = document.querySelectorAll("#navLinks .nav-link");
+      window.addEventListener(
+        "scroll",
+        () => {
+          let current = "home";
+          sections.forEach((s) => {
+            if (window.scrollY + 120 >= s.offsetTop) current = s.id;
+          });
+          links.forEach((l) => {
+            const active = l.getAttribute("href") === "#" + current;
+            l.classList.toggle("text-brand", active);
+          });
+        },
+        { passive: true },
+      );
+
+      document.getElementById("year").textContent = new Date().getFullYear();
+
+      /* Navbar: transparan di atas, berwarna saat scroll */
+      const header = document.getElementById("header");
+      const updateHeader = () => {
+        const scrolled = window.scrollY > 10;
+        header.classList.toggle("bg-white/80", scrolled);
+        header.classList.toggle("backdrop-blur-md", scrolled);
+        header.classList.toggle("shadow-sm", scrolled);
+        header.classList.toggle("border-slate-100", scrolled);
+        header.classList.toggle("bg-transparent", !scrolled);
+        header.classList.toggle("border-transparent", !scrolled);
+      };
+      updateHeader();
+      window.addEventListener("scroll", updateHeader, { passive: true });
+    </script>
+  </body>
+</html>
