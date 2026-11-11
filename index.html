@@ -2,12 +2,13 @@
 <html lang="id" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>GeoTrack — Pantau Lokasi Kendaraan & Aset Real-Time</title>
     <meta
       name="description"
       content="GeoTrack: pantau lokasi kendaraan dan aset kamu real-time dari mana saja."
     />
+    <meta name="theme-color" content="#EEF5FF" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -36,7 +37,12 @@
     </script>
 
     <style>
-      /* ====== ANIMASI HERO (sama seperti kode referensi) ====== */
+      html {
+        -webkit-text-size-adjust: 100%;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      /* ====== ANIMASI HERO ====== */
       @keyframes float {
         0%,
         100% {
@@ -131,6 +137,95 @@
         animation: dash 1.4s linear infinite;
       }
 
+
+      /* ===== HP 3D realistis di section Benefit ===== */
+      .ph-wrap {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 360px;
+        height: 760px;
+        margin: -380px 0 0 -180px;
+        transform: scale(var(--ph-scale, 0.5));
+        z-index: 10;
+      }
+      @media (min-width: 640px) {
+        .ph-wrap {
+          --ph-scale: 0.6;
+        }
+      }
+      .ph-stage {
+        width: 100%;
+        height: 100%;
+        perspective: 1500px;
+      }
+      .ph-shadow {
+        width: 100%;
+        height: 100%;
+        filter: drop-shadow(0 40px 30px rgba(15, 23, 42, 0.28));
+      }
+      .ph-3d {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transform-style: preserve-3d;
+        transform: rotateX(6deg) rotateY(34deg) rotateZ(-16deg);
+      }
+      .ph-ly {
+        position: absolute;
+        inset: 0;
+        border-radius: 58px;
+        background: linear-gradient(180deg, #262930, #5d626b 40%, #23262c);
+      }
+      .ph-front {
+        position: absolute;
+        inset: 0;
+        border-radius: 58px;
+        background: #05070b;
+        box-shadow:
+          inset 0 0 0 3px #787d86,
+          inset 0 0 0 9px #0a0d13;
+      }
+      .ph-screen {
+        position: absolute;
+        inset: 14px;
+        border-radius: 46px;
+        overflow: hidden;
+        background: #fff;
+      }
+      .ph-screen::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: linear-gradient(115deg, rgba(255, 255, 255, 0.14), transparent 38%);
+      }
+      .ph-isl {
+        position: absolute;
+        top: 14px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 30px;
+        border-radius: 99px;
+        background: #000;
+        z-index: 3;
+      }
+      .ph-btn,
+      .ph-pw {
+        position: absolute;
+        width: 6px;
+        border-radius: 3px;
+        background: #6a6f78;
+        transform: translateZ(-4px);
+      }
+      .ph-btn {
+        left: -3px;
+      }
+      .ph-pw {
+        right: -3px;
+      }
+
       /* Peta */
       .map-bg {
         background-color: #e8eff8;
@@ -193,8 +288,41 @@
         }
       }
 
+
+      .benefit-panel {
+        animation: panelIn 0.4s ease;
+      }
+      @keyframes panelIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
       section[id] {
         scroll-margin-top: 68px;
+      }
+
+      /* Fokus keyboard yang jelas */
+      a:focus-visible,
+      button:focus-visible {
+        outline: 2px solid #2563eb;
+        outline-offset: 2px;
+      }
+
+      /* Kenyamanan di ponsel */
+      @media (max-width: 767px) {
+        .reveal {
+          transform: translateY(16px);
+        }
+        /* area aman untuk notch / gesture bar */
+        footer {
+          padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
       }
     </style>
   </head>
@@ -206,13 +334,13 @@
       class="fixed top-0 inset-x-0 z-50 bg-transparent border-b border-transparent transition-all duration-300"
     >
       <div
-        class="max-w-6xl mx-auto px-5 h-[68px] flex items-center justify-between"
+        class="max-w-6xl mx-auto px-4 sm:px-5 h-16 md:h-[68px] flex items-center justify-between"
       >
         <a href="#home" class="flex items-center gap-2.5">
           <span
             class="w-9 h-9 rounded-xl bg-gradient-to-br from-geo to-brand grid place-items-center shadow-md"
           >
-            <img src="GeoTrack_Navigation_Logo_No_White_Edges.png" alt="">
+            <img src="GeoTrack_Navigation_Logo_No_White_Edges.png" alt="" />
           </span>
           <span class="text-lg font-extrabold tracking-tight"
             ><span class="text-geo">Geo</span
@@ -225,19 +353,11 @@
           id="navLinks"
         >
           <a href="#home" class="nav-link text-brand">Home</a>
-          <a href="#cara-kerja" class="nav-link hover:text-brand transition"
-            >Cara Kerja</a
-          >
-          <a href="#fitur" class="nav-link hover:text-brand transition"
-            >Fitur</a
-          >
-          <a href="#gallery" class="nav-link hover:text-brand transition"
-            >Gallery</a
-          >
+          <a href="#benefit" class="nav-link hover:text-brand transition">Benefit</a>
+          <a href="#fitur" class="nav-link hover:text-brand transition">Fitur</a>
+          <a href="#cara-kerja" class="nav-link hover:text-brand transition">Cara Kerja</a>
+          <a href="#gallery" class="nav-link hover:text-brand transition">Gallery</a>
           <a href="#faq" class="nav-link hover:text-brand transition">FAQ</a>
-          <a href="#contact" class="nav-link hover:text-brand transition"
-            >Contact</a
-          >
         </nav>
 
         <div class="flex items-center gap-3">
@@ -248,8 +368,10 @@
           >
           <button
             id="burger"
-            class="md:hidden w-10 h-10 grid place-items-center rounded-lg bg-slate-100"
+            class="md:hidden w-11 h-11 grid place-items-center rounded-lg bg-white/80 border border-slate-200"
             aria-label="Buka menu"
+            aria-expanded="false"
+            aria-controls="mobileMenu"
           >
             <svg
               class="w-5 h-5"
@@ -268,37 +390,17 @@
       <!-- Menu mobile -->
       <div
         id="mobileMenu"
-        class="hidden md:hidden border-t border-slate-100 bg-white px-5 pb-4"
+        class="hidden md:hidden border-t border-slate-100 bg-white px-4 pb-4 shadow-lg max-h-[calc(100vh-4rem)] overflow-y-auto"
       >
-        <a
-          href="#home"
-          class="block py-3 text-sm font-semibold border-b border-slate-100"
-          >Home</a
-        >
-        <a
-          href="#cara-kerja"
-          class="block py-3 text-sm font-semibold border-b border-slate-100"
-          >Cara Kerja</a
-        >
-        <a
-          href="#fitur"
-          class="block py-3 text-sm font-semibold border-b border-slate-100"
-          >Fitur</a
-        >
-        <a
-          href="#gallery"
-          class="block py-3 text-sm font-semibold border-b border-slate-100"
-          >Gallery</a
-        >
-        <a
-          href="#faq"
-          class="block py-3 text-sm font-semibold border-b border-slate-100"
-          >FAQ</a
-        >
-        <a href="#contact" class="block py-3 text-sm font-semibold">Contact</a>
+        <a href="#home" class="block py-3.5 text-[15px] font-semibold border-b border-slate-100">Home</a>
+        <a href="#benefit" class="block py-3.5 text-[15px] font-semibold border-b border-slate-100">Benefit</a>
+        <a href="#fitur" class="block py-3.5 text-[15px] font-semibold border-b border-slate-100">Fitur</a>
+        <a href="#cara-kerja" class="block py-3.5 text-[15px] font-semibold border-b border-slate-100">Cara Kerja</a>
+        <a href="#gallery" class="block py-3.5 text-[15px] font-semibold border-b border-slate-100">Gallery</a>
+        <a href="#faq" class="block py-3.5 text-[15px] font-semibold">FAQ</a>
         <a
           href="#contact"
-          class="mt-2 block text-center bg-brand text-white text-sm font-bold px-5 py-3 rounded-lg"
+          class="mt-2 block text-center bg-brand text-white text-[15px] font-bold px-5 py-3.5 rounded-lg"
           >Pesan Sekarang</a
         >
       </div>
@@ -307,7 +409,7 @@
     <!-- ================= HERO ================= -->
     <section
       id="home"
-      class="relative bg-gradient-to-b pt-[58px] from-mist via-[#F3F8FF] to-white overflow-hidden"
+      class="relative bg-gradient-to-b pt-16 md:pt-[58px] from-mist via-[#F3F8FF] to-white overflow-hidden"
     >
       <div
         class="absolute -top-24 -right-24 w-[420px] h-[420px] rounded-full bg-brand/10 blur-3xl"
@@ -317,12 +419,12 @@
       ></div>
 
       <div
-        class="relative max-w-6xl mx-auto px-5 py-14 md:py-20 grid lg:grid-cols-2 gap-14 items-center"
+        class="relative max-w-6xl mx-auto px-4 sm:px-5 py-10 md:py-20 grid lg:grid-cols-2 gap-10 lg:gap-14 items-center"
       >
         <!-- Teks -->
         <div class="reveal">
           <span
-            class="inline-flex items-center gap-2 bg-white border border-slate-200 text-geo text-xs font-semibold px-3.5 py-1.5 rounded-full shadow-sm mb-5"
+            class="inline-flex items-center gap-2 bg-white border border-slate-200 text-geo text-xs font-semibold px-3.5 py-1.5 rounded-full shadow-sm mb-4 sm:mb-5"
           >
             <svg
               class="w-3.5 h-3.5"
@@ -339,19 +441,21 @@
             Pelacakan real-time
           </span>
           <h1
-            class="text-4xl sm:text-5xl lg:text-[52px] font-extrabold leading-[1.12] tracking-tight"
+            class="text-[32px] leading-[1.15] sm:text-5xl lg:text-[52px] font-extrabold tracking-tight"
           >
             Pantau lokasi kendaraan &amp; aset kamu
             <span class="text-brand">detik ini juga</span>, dari mana saja.
           </h1>
-          <p class="mt-5 text-slate-600 max-w-md leading-relaxed">
+          <p
+            class="mt-4 sm:mt-5 text-[15px] sm:text-base text-slate-600 max-w-md leading-relaxed"
+          >
             Pasang dalam hitungan menit, lalu pantau posisi, riwayat perjalanan,
             dan status aset langsung dari aplikasi, kapan pun kamu butuh.
           </p>
-          <div class="mt-8 flex flex-wrap gap-3">
+          <div class="mt-7 sm:mt-8 flex flex-col sm:flex-row gap-3">
             <a
               href="#contact"
-              class="inline-flex items-center gap-2 bg-brand hover:bg-brand-dark text-white font-bold text-sm px-6 py-3.5 rounded-lg shadow-lg shadow-brand/30 transition hover:-translate-y-0.5"
+              class="inline-flex items-center justify-center gap-2 bg-brand hover:bg-brand-dark text-white font-bold text-sm px-6 py-4 sm:py-3.5 rounded-lg shadow-lg shadow-brand/30 transition hover:-translate-y-0.5"
             >
               <svg
                 class="w-4 h-4"
@@ -369,7 +473,7 @@
             </a>
             <a
               href="#fitur"
-              class="inline-flex items-center gap-2 bg-white border border-geo text-geo hover:bg-geo/5 font-bold text-sm px-6 py-3.5 rounded-lg transition"
+              class="inline-flex items-center justify-center gap-2 bg-white border border-geo text-geo hover:bg-geo/5 font-bold text-sm px-6 py-4 sm:py-3.5 rounded-lg transition"
             >
               <svg
                 class="w-4 h-4"
@@ -409,16 +513,16 @@
 
           <!-- device melayang -->
           <div
-            class="device absolute right-2 sm:right-0 -top-1 z-20 w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-gradient-to-br from-white to-[#DDF5E8] border border-white shadow-[0_18px_40px_rgba(18,179,90,.25)] grid place-items-center"
+            class="device absolute right-2 sm:right-0 -top-1 z-20 w-20 h-20 sm:w-28 sm:h-28 rounded-3xl bg-gradient-to-br from-white to-[#DDF5E8] border border-white shadow-[0_18px_40px_rgba(18,179,90,.25)] grid place-items-center"
           >
             <span
               class="led absolute top-3 right-3 w-2 h-2 rounded-full bg-brand shadow-[0_0_0_4px_rgba(18,179,90,.18),0_0_10px_#12B35A]"
             ></span>
             <span
-              class="w-12 h-12 rounded-full border border-dashed border-brand/50 bg-brand/10 grid place-items-center"
+              class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-dashed border-brand/50 bg-brand/10 grid place-items-center"
             >
               <svg
-                class="w-6 h-6 text-brand"
+                class="w-5 h-5 sm:w-6 sm:h-6 text-brand"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -438,7 +542,7 @@
 
           <!-- dashboard card -->
           <div
-            class="relative z-10 bg-white/90 backdrop-blur rounded-3xl border border-white shadow-[0_30px_70px_rgba(15,23,42,.18)] p-3 sm:p-4 rotate-[1.2deg]"
+            class="relative z-10 bg-white/90 backdrop-blur rounded-3xl border border-white shadow-[0_30px_70px_rgba(15,23,42,.18)] p-3 sm:p-4 sm:rotate-[1.2deg]"
           >
             <div class="flex items-center gap-1.5 px-1 pb-3">
               <span class="w-2.5 h-2.5 rounded-full bg-[#FF5F57]"></span>
@@ -451,7 +555,7 @@
 
             <!-- peta -->
             <div
-              class="map-bg relative h-44 sm:h-56 rounded-2xl overflow-hidden"
+              class="map-bg relative h-40 sm:h-56 rounded-2xl overflow-hidden"
             >
               <svg
                 class="absolute inset-0 w-full h-full"
@@ -510,9 +614,9 @@
             </div>
 
             <!-- statistik -->
-            <div class="grid grid-cols-2 gap-2.5 mt-3">
+            <div class="grid grid-cols-2 gap-2 sm:gap-2.5 mt-3">
               <div
-                class="bg-slate-50 border border-slate-100 rounded-xl px-3.5 py-2.5"
+                class="bg-slate-50 border border-slate-100 rounded-xl px-3 sm:px-3.5 py-2.5"
               >
                 <p
                   class="text-[9px] font-bold tracking-wider text-slate-400 uppercase"
@@ -525,7 +629,7 @@
                 </p>
               </div>
               <div
-                class="bg-slate-50 border border-slate-100 rounded-xl px-3.5 py-2.5"
+                class="bg-slate-50 border border-slate-100 rounded-xl px-3 sm:px-3.5 py-2.5"
               >
                 <p
                   class="text-[9px] font-bold tracking-wider text-slate-400 uppercase"
@@ -538,7 +642,7 @@
                 </p>
               </div>
               <div
-                class="bg-slate-50 border border-slate-100 rounded-xl px-3.5 py-2.5"
+                class="bg-slate-50 border border-slate-100 rounded-xl px-3 sm:px-3.5 py-2.5"
               >
                 <p
                   class="text-[9px] font-bold tracking-wider text-slate-400 uppercase"
@@ -548,7 +652,7 @@
                 <p class="text-sm font-extrabold">86%</p>
               </div>
               <div
-                class="bg-slate-50 border border-slate-100 rounded-xl px-3.5 py-2.5"
+                class="bg-slate-50 border border-slate-100 rounded-xl px-3 sm:px-3.5 py-2.5"
               >
                 <p
                   class="text-[9px] font-bold tracking-wider text-slate-400 uppercase"
@@ -563,16 +667,283 @@
       </div>
     </section>
 
+    <!-- ================= BENEFIT (2 tab: Running & Rental) ================= -->
+    <section id="benefit" class="relative overflow-hidden py-14 md:py-24 bg-gradient-to-b from-mist via-[#F3F8FF] to-white">
+      <div class="absolute -top-24 -right-24 w-[420px] h-[420px] rounded-full bg-brand/10 blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-32 -left-24 w-[380px] h-[380px] rounded-full bg-geo/10 blur-3xl pointer-events-none"></div>
+
+      <div class="relative max-w-6xl mx-auto px-4 sm:px-5">
+        <div class="text-center reveal">
+          <span class="inline-block bg-brand-soft text-brand text-[11px] font-bold tracking-wider uppercase px-3.5 py-1.5 rounded-full mb-4">Benefit</span>
+          <h2 class="text-[26px] leading-tight sm:text-4xl md:text-[42px] font-extrabold tracking-tight">Mengapa Memilih GeoTrack?</h2>
+          <p class="mt-3 text-slate-500 text-sm sm:text-base">Pelacakan lebih cerdas, mudah, dan efisien secara real-time.</p>
+
+          <div role="tablist" aria-label="Pilih mode penggunaan" class="mt-6 inline-flex p-1.5 gap-1 rounded-xl bg-slate-200/60 border border-slate-200">
+            <button id="tab-running" role="tab" aria-selected="true" aria-controls="panel-running" class="benefit-tab inline-flex items-center justify-center gap-2 min-h-[44px] px-5 sm:px-7 rounded-lg text-sm font-bold transition bg-white text-brand shadow"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l4 4-4 4"/><path d="M3 7h18"/><path d="M7 21l-4-4 4-4"/><path d="M21 17H3"/></svg> Running</button>
+            <button id="tab-rental" role="tab" aria-selected="false" aria-controls="panel-rental" tabindex="-1" class="benefit-tab inline-flex items-center justify-center gap-2 min-h-[44px] px-5 sm:px-7 rounded-lg text-sm font-bold transition text-slate-500"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a2 2 0 0 0-1.6-.8H9.3a2 2 0 0 0-1.55.74L5.5 10.3A4 4 0 0 0 4.6 12.7V16h3"/><circle cx="6.5" cy="16.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/></svg> Rental</button>
+          </div>
+        </div>
+
+        <div id="panel-running" role="tabpanel" aria-labelledby="tab-running" class="benefit-panel grid lg:grid-cols-2 gap-6 lg:gap-14 items-center mt-8 md:mt-12">
+          <div class="relative order-1 w-full max-w-[460px] mx-auto h-[450px] sm:h-[520px]">
+            <!-- Lingkaran dekoratif -->
+            <div class="absolute -right-[2%] top-[8%] w-[62%] aspect-square rounded-full bg-gradient-to-b from-brand/25 to-brand/5"></div>
+            <div class="absolute right-[6%] -bottom-[6%] w-[60%] aspect-square rounded-full bg-gradient-to-b from-brand/20 to-brand/5"></div>
+            <div class="absolute left-[4%] top-[18%] w-[40%] aspect-square rounded-full bg-gradient-to-b from-brand/15 to-brand/5"></div>
+            <div class="absolute left-0 bottom-[8%] w-[24%] aspect-square rounded-full bg-gradient-to-b from-brand/15 to-brand/5"></div>
+
+            <!-- HP 3D. Yang perlu diganti hanya gambar layar di dalamnya -->
+            <div class="ph-wrap" aria-hidden="false">
+              <div class="ph-stage"><div class="ph-shadow"><div class="ph-3d">
+                <i class="ph-ly" style="transform: translateZ(-1.4px)"></i><i class="ph-ly" style="transform: translateZ(-2.8px)"></i><i class="ph-ly" style="transform: translateZ(-4.2px)"></i><i class="ph-ly" style="transform: translateZ(-5.6px)"></i><i class="ph-ly" style="transform: translateZ(-7.0px)"></i><i class="ph-ly" style="transform: translateZ(-8.4px)"></i><i class="ph-ly" style="transform: translateZ(-9.8px)"></i><i class="ph-ly" style="transform: translateZ(-11.2px)"></i><i class="ph-ly" style="transform: translateZ(-12.6px)"></i><i class="ph-ly" style="transform: translateZ(-14.0px)"></i><i class="ph-ly" style="transform: translateZ(-15.4px)"></i><i class="ph-ly" style="transform: translateZ(-16.8px)"></i><i class="ph-ly" style="transform: translateZ(-18.2px)"></i><i class="ph-ly" style="transform: translateZ(-19.6px)"></i><i class="ph-ly" style="transform: translateZ(-21.0px)"></i><i class="ph-ly" style="transform: translateZ(-22.4px)"></i><i class="ph-ly" style="transform: translateZ(-23.8px)"></i><i class="ph-ly" style="transform: translateZ(-25.2px)"></i><i class="ph-ly" style="transform: translateZ(-26.6px)"></i><i class="ph-ly" style="transform: translateZ(-28.0px)"></i><i class="ph-ly" style="transform: translateZ(-29.4px)"></i><i class="ph-ly" style="transform: translateZ(-30.8px)"></i>
+                <span class="ph-btn" style="top:150px;height:30px"></span>
+                <span class="ph-btn" style="top:210px;height:60px"></span>
+                <span class="ph-btn" style="top:290px;height:60px"></span>
+                <span class="ph-pw" style="top:240px;height:90px"></span>
+                <div class="ph-front">
+                  <div class="ph-screen">
+                    <!-- Placeholder: tampil hanya kalau gambar belum ada -->
+                    <div class="absolute inset-0 map-bg">
+                      <div class="absolute inset-x-5 bottom-8 bg-white rounded-2xl shadow px-4 py-3">
+                        <p class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Running</p>
+                        <p class="text-base font-extrabold">5,80 km · Pace 6'12"</p>
+                      </div>
+                    </div>
+                    <!-- GANTI GAMBAR LAYAR DI SINI: screenshot aplikasi (rasio HP, mis. 9:19) -->
+                    <img src="image3.png" alt="Tampilan aplikasi GeoTrack mode Running" class="absolute inset-0 w-full h-full object-cover object-top bg-white" onerror="this.remove()" />
+                    <span class="ph-isl"></span>
+                  </div>
+                </div>
+              </div></div></div>
+            </div>
+          </div>
+          <div class="order-2 space-y-3">
+            <div class="flex gap-3.5 bg-white rounded-xl border border-slate-100 shadow-sm p-4">
+              <span class="shrink-0 w-7 h-7 rounded-md bg-brand-soft text-brand text-xs font-bold grid place-items-center">01</span>
+              <div>
+                <h3 class="text-[15px] font-bold leading-snug">Hemat Baterai Ponsel</h3>
+                <p class="mt-1 text-[13px] text-slate-500 leading-relaxed">Menggunakan GPS perangkat IoT untuk mengurangi penggunaan baterai ponsel saat berlari.</p>
+              </div>
+            </div>
+            <div class="flex gap-3.5 bg-white rounded-xl border border-slate-100 shadow-sm p-4">
+              <span class="shrink-0 w-7 h-7 rounded-md bg-brand-soft text-brand text-xs font-bold grid place-items-center">02</span>
+              <div>
+                <h3 class="text-[15px] font-bold leading-snug">Pengukuran Jarak Akurat</h3>
+                <p class="mt-1 text-[13px] text-slate-500 leading-relaxed">Menghitung jarak tempuh berdasarkan koordinat GPS menggunakan metode Haversine.</p>
+              </div>
+            </div>
+            <div class="flex gap-3.5 bg-white rounded-xl border border-slate-100 shadow-sm p-4">
+              <span class="shrink-0 w-7 h-7 rounded-md bg-brand-soft text-brand text-xs font-bold grid place-items-center">03</span>
+              <div>
+                <h3 class="text-[15px] font-bold leading-snug">Analisis Performa Otomatis</h3>
+                <p class="mt-1 text-[13px] text-slate-500 leading-relaxed">Menampilkan ringkasan aktivitas berupa jarak, durasi, dan rata-rata kecepatan lari secara otomatis.</p>
+              </div>
+            </div>
+             <div class="flex gap-3.5 bg-white rounded-xl border border-slate-100 shadow-sm p-4">
+              <span class="shrink-0 w-7 h-7 rounded-md bg-brand-soft text-brand text-xs font-bold grid place-items-center">04</span>
+              <div>
+                <h3 class="text-[15px] font-bold leading-snug">Visualisasi Rute Interaktif</h3>
+                <p class="mt-1 text-[13px] text-slate-500 leading-relaxed">Menampilkan lintasan lari pada peta dengan penanda titik mulai dan selesai.</p>
+              </div>
+            </div>
+             <div class="flex gap-3.5 bg-white rounded-xl border border-slate-100 shadow-sm p-4">
+              <span class="shrink-0 w-7 h-7 rounded-md bg-brand-soft text-brand text-xs font-bold grid place-items-center">05</span>
+              <div>
+                <h3 class="text-[15px] font-bold leading-snug">Berbagi Hasil Aktivitas</h3>
+                <p class="mt-1 text-[13px] text-slate-500 leading-relaxed">Membuat kartu aktivitas berformat 9:16 dengan latar peta atau transparan untuk dibagikan ke WhatsApp dan Instagram.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="panel-rental" role="tabpanel" aria-labelledby="tab-rental" class="benefit-panel hidden grid lg:grid-cols-2 gap-6 lg:gap-14 items-center mt-8 md:mt-12">
+          <div class="relative order-1 w-full max-w-[460px] mx-auto h-[450px] sm:h-[520px]">
+            <!-- Lingkaran dekoratif -->
+            <div class="absolute -right-[2%] top-[8%] w-[62%] aspect-square rounded-full bg-gradient-to-b from-brand/25 to-brand/5"></div>
+            <div class="absolute right-[6%] -bottom-[6%] w-[60%] aspect-square rounded-full bg-gradient-to-b from-brand/20 to-brand/5"></div>
+            <div class="absolute left-[4%] top-[18%] w-[40%] aspect-square rounded-full bg-gradient-to-b from-brand/15 to-brand/5"></div>
+            <div class="absolute left-0 bottom-[8%] w-[24%] aspect-square rounded-full bg-gradient-to-b from-brand/15 to-brand/5"></div>
+
+            <!-- HP 3D. Yang perlu diganti hanya gambar layar di dalamnya -->
+            <div class="ph-wrap" aria-hidden="false">
+              <div class="ph-stage"><div class="ph-shadow"><div class="ph-3d">
+                <i class="ph-ly" style="transform: translateZ(-1.4px)"></i><i class="ph-ly" style="transform: translateZ(-2.8px)"></i><i class="ph-ly" style="transform: translateZ(-4.2px)"></i><i class="ph-ly" style="transform: translateZ(-5.6px)"></i><i class="ph-ly" style="transform: translateZ(-7.0px)"></i><i class="ph-ly" style="transform: translateZ(-8.4px)"></i><i class="ph-ly" style="transform: translateZ(-9.8px)"></i><i class="ph-ly" style="transform: translateZ(-11.2px)"></i><i class="ph-ly" style="transform: translateZ(-12.6px)"></i><i class="ph-ly" style="transform: translateZ(-14.0px)"></i><i class="ph-ly" style="transform: translateZ(-15.4px)"></i><i class="ph-ly" style="transform: translateZ(-16.8px)"></i><i class="ph-ly" style="transform: translateZ(-18.2px)"></i><i class="ph-ly" style="transform: translateZ(-19.6px)"></i><i class="ph-ly" style="transform: translateZ(-21.0px)"></i><i class="ph-ly" style="transform: translateZ(-22.4px)"></i><i class="ph-ly" style="transform: translateZ(-23.8px)"></i><i class="ph-ly" style="transform: translateZ(-25.2px)"></i><i class="ph-ly" style="transform: translateZ(-26.6px)"></i><i class="ph-ly" style="transform: translateZ(-28.0px)"></i><i class="ph-ly" style="transform: translateZ(-29.4px)"></i><i class="ph-ly" style="transform: translateZ(-30.8px)"></i>
+                <span class="ph-btn" style="top:150px;height:30px"></span>
+                <span class="ph-btn" style="top:210px;height:60px"></span>
+                <span class="ph-btn" style="top:290px;height:60px"></span>
+                <span class="ph-pw" style="top:240px;height:90px"></span>
+                <div class="ph-front">
+                  <div class="ph-screen">
+                    <!-- Placeholder: tampil hanya kalau gambar belum ada -->
+                    <div class="absolute inset-0 map-bg">
+                      <div class="absolute inset-x-5 bottom-8 bg-white rounded-2xl shadow px-4 py-3">
+                        <p class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Rental</p>
+                        <p class="text-base font-extrabold">3 alat sedang disewa</p>
+                      </div>
+                    </div>
+                    <!-- GANTI GAMBAR LAYAR DI SINI: screenshot aplikasi (rasio HP, mis. 9:19) -->
+                    <img src="image10.png" alt="Tampilan aplikasi GeoTrack mode Rental" class="absolute inset-0 w-full h-full object-cover object-top bg-white" onerror="this.remove()" />
+                    <span class="ph-isl"></span>
+                  </div>
+                </div>
+              </div></div></div>
+            </div>
+          </div>
+          <div class="order-2 space-y-3">
+            <div class="flex gap-3.5 bg-white rounded-xl border border-slate-100 shadow-sm p-4">
+              <span class="shrink-0 w-7 h-7 rounded-md bg-brand-soft text-brand text-xs font-bold grid place-items-center">01</span>
+              <div>
+                <h3 class="text-[15px] font-bold leading-snug">Pemantauan Kendaraan Langsung</h3>
+                <p class="mt-1 text-[13px] text-slate-500 leading-relaxed">Memantau posisi dan pergerakan kendaraan secara langsung melalui peta interaktif.</p>
+              </div>
+            </div>
+            <div class="flex gap-3.5 bg-white rounded-xl border border-slate-100 shadow-sm p-4">
+              <span class="shrink-0 w-7 h-7 rounded-md bg-brand-soft text-brand text-xs font-bold grid place-items-center">02</span>
+              <div>
+                <h3 class="text-[15px] font-bold leading-snug">Riwayat Perjalanan Kendaraan</h3>
+                <p class="mt-1 text-[13px] text-slate-500 leading-relaxed">Menyimpan riwayat rute, jarak tempuh, dan titik pemberhentian kendaraan.</p>
+              </div>
+            </div>
+            <div class="flex gap-3.5 bg-white rounded-xl border border-slate-100 shadow-sm p-4">
+              <span class="shrink-0 w-7 h-7 rounded-md bg-brand-soft text-brand text-xs font-bold grid place-items-center">03</span>
+              <div>
+                <h3 class="text-[15px] font-bold leading-snug">Pengenalan Nama Lokasi Otomatis</h3>
+                <p class="mt-1 text-[13px] text-slate-500 leading-relaxed">Mengubah koordinat GPS menjadi nama jalan, kelurahan, dan kota.</p>
+              </div>
+            </div>
+            <div class="flex gap-3.5 bg-white rounded-xl border border-slate-100 shadow-sm p-4">
+              <span class="shrink-0 w-7 h-7 rounded-md bg-brand-soft text-brand text-xs font-bold grid place-items-center">04</span>
+              <div>
+                <h3 class="text-[15px] font-bold leading-snug">Pemantauan Daya Baterai</h3>
+                <p class="mt-1 text-[13px] text-slate-500 leading-relaxed">Menampilkan persentase baterai pelacak dan memberikan peringatan saat daya di bawah 20%.</p>
+              </div>
+            </div>
+            <div class="flex gap-3.5 bg-white rounded-xl border border-slate-100 shadow-sm p-4">
+              <span class="shrink-0 w-7 h-7 rounded-md bg-brand-soft text-brand text-xs font-bold grid place-items-center">05</span>
+              <div>
+                <h3 class="text-[15px] font-bold leading-snug">Pemantauan Status Perangkat</h3>
+                <p class="mt-1 text-[13px] text-slate-500 leading-relaxed">Mengetahui kondisi koneksi perangkat melalui indikator aktif dan tidak aktif.</p>
+              </div>
+            </div>
+            <div class="flex gap-3.5 bg-white rounded-xl border border-slate-100 shadow-sm p-4">
+              <span class="shrink-0 w-7 h-7 rounded-md bg-brand-soft text-brand text-xs font-bold grid place-items-center">06</span>
+              <div>
+                <h3 class="text-[15px] font-bold leading-snug">Ekspor Data Operasional</h3>
+                <p class="mt-1 text-[13px] text-slate-500 leading-relaxed">Mengunduh riwayat perjalanan dalam format CSV untuk dokumentasi dan rekap operasional.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= FITUR ================= -->
+    <section id="fitur" class="py-14 md:py-24 bg-white">
+
+      <div class="max-w-6xl mx-auto px-4 sm:px-5">
+        <div class="grid md:grid-cols-2 gap-4 md:items-end reveal">
+          <div>
+            <span
+              class="inline-block bg-brand-soft text-brand text-[11px] font-bold tracking-wider uppercase px-3.5 py-1.5 rounded-full mb-4"
+              >Fitur</span
+            >
+            <h2
+              class="text-[26px] sm:text-4xl md:text-[42px] font-extrabold tracking-tight leading-tight"
+            >
+              Lebih dari <br />
+              sekadar
+              <span class="text-brand">titik di peta</span>
+            </h2>
+          </div>
+          <p
+            class="text-slate-500 text-sm md:text-right md:max-w-xs md:ml-auto"
+          >
+            Dari lokasi terkini sampai jejak perjalanan, semuanya jelas dalam
+            satu aplikasi.
+          </p>
+        </div>
+
+        <div class="mt-8 md:mt-10 border-t border-slate-300/80">
+          <div
+            class="reveal grid grid-cols-[auto_1fr] md:grid-cols-[auto_1fr_1fr] items-center gap-x-4 md:gap-x-8 gap-y-1.5 py-5 md:py-7 border-b border-slate-300/80 group"
+          >
+            <span class="text-sm font-semibold text-slate-500 md:pl-4">01</span>
+            <h3
+              class="text-xl sm:text-3xl font-extrabold tracking-tight group-hover:text-brand transition"
+            >
+              Live Tracking
+            </h3>
+            <p
+              class="col-span-2 md:col-span-1 text-sm text-slate-500 md:text-right md:max-w-sm md:ml-auto"
+            >
+              Posisi diperbarui tiap 10 detik. Lihat kendaraan bergerak di peta
+              secara real-time.
+            </p>
+          </div>
+          <div
+            class="reveal grid grid-cols-[auto_1fr] md:grid-cols-[auto_1fr_1fr] items-center gap-x-4 md:gap-x-8 gap-y-1.5 py-5 md:py-7 border-b border-slate-300/80 group"
+          >
+            <span class="text-sm font-semibold text-slate-500 md:pl-4">02</span>
+            <h3
+              class="text-xl sm:text-3xl font-extrabold tracking-tight group-hover:text-brand transition"
+            >
+              Riwayat Perjalanan
+            </h3>
+            <p
+              class="col-span-2 md:col-span-1 text-sm text-slate-500 md:text-right md:max-w-sm md:ml-auto"
+            >
+              Simpan rute hingga 90 hari. Lihat jam berangkat, berhenti di mana,
+              dan berapa lama.
+            </p>
+          </div>
+          <div
+            class="reveal grid grid-cols-[auto_1fr] md:grid-cols-[auto_1fr_1fr] items-center gap-x-4 md:gap-x-8 gap-y-1.5 py-5 md:py-7 border-b border-slate-300/80 group"
+          >
+            <span class="text-sm font-semibold text-slate-500 md:pl-4">03</span>
+            <h3
+              class="text-xl sm:text-3xl font-extrabold tracking-tight group-hover:text-brand transition"
+            >
+              Laporan Otomatis
+            </h3>
+            <p
+              class="col-span-2 md:col-span-1 text-sm text-slate-500 md:text-right md:max-w-sm md:ml-auto"
+            >
+              Export laporan harian/mingguan ke Excel &amp; PDF. Cocok untuk
+              audit dan klaim asuransi.
+            </p>
+          </div>
+          <div
+            class="reveal grid grid-cols-[auto_1fr] md:grid-cols-[auto_1fr_1fr] items-center gap-x-4 md:gap-x-8 gap-y-1.5 py-5 md:py-7 border-b border-slate-300/80 group"
+          >
+            <span class="text-sm font-semibold text-slate-500 md:pl-4">04</span>
+            <h3
+              class="text-xl sm:text-3xl font-extrabold tracking-tight group-hover:text-brand transition"
+            >
+              Keamanan Data
+            </h3>
+            <p
+              class="col-span-2 md:col-span-1 text-sm text-slate-500 md:text-right md:max-w-sm md:ml-auto"
+            >
+              Enkripsi TLS 1.3, server di Indonesia, akses dua faktor. Data
+              lokasi tidak dijual ke pihak ketiga.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- ================= CARA KERJA ================= -->
-    <section id="cara-kerja" class="py-20 md:py-24 bg-white">
-      <div class="max-w-6xl mx-auto px-5">
+    <section id="cara-kerja" class="relative overflow-hidden py-14 md:py-24 bg-gradient-to-b from-mist via-[#F3F8FF] to-white">
+      <div class="absolute -top-24 -right-24 w-[420px] h-[420px] rounded-full bg-brand/10 blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-32 -left-24 w-[380px] h-[380px] rounded-full bg-geo/10 blur-3xl pointer-events-none"></div>
+
+      <div class="relative max-w-6xl mx-auto px-4 sm:px-5">
         <div class="text-center reveal">
           <span
             class="inline-block bg-brand-soft text-brand text-[11px] font-bold tracking-wider uppercase px-3.5 py-1.5 rounded-full mb-4"
             >Cara Kerja</span
           >
           <h2
-            class="text-3xl sm:text-4xl md:text-[42px] font-extrabold tracking-tight"
+            class="text-[26px] leading-tight sm:text-4xl md:text-[42px] font-extrabold tracking-tight"
           >
             Tiga langkah. Langsung terpantau.
           </h2>
@@ -582,7 +953,7 @@
           </p>
         </div>
 
-        <div class="relative mt-14 grid md:grid-cols-3 gap-10 md:gap-6">
+        <div class="relative mt-10 md:mt-14 grid md:grid-cols-3 gap-9 md:gap-6">
           <div
             class="hidden md:block absolute top-8 left-[18%] right-[18%] border-t-2 border-dashed border-slate-200"
           ></div>
@@ -606,7 +977,7 @@
               </svg>
             </div>
             <p
-              class="mt-5 text-[11px] font-bold tracking-[.14em] text-slate-400 uppercase"
+              class="mt-4 sm:mt-5 text-[11px] font-bold tracking-[.14em] text-slate-400 uppercase"
             >
               Langkah 01
             </p>
@@ -639,7 +1010,7 @@
               </svg>
             </div>
             <p
-              class="mt-5 text-[11px] font-bold tracking-[.14em] text-slate-400 uppercase"
+              class="mt-4 sm:mt-5 text-[11px] font-bold tracking-[.14em] text-slate-400 uppercase"
             >
               Langkah 02
             </p>
@@ -670,7 +1041,7 @@
               </svg>
             </div>
             <p
-              class="mt-5 text-[11px] font-bold tracking-[.14em] text-slate-400 uppercase"
+              class="mt-4 sm:mt-5 text-[11px] font-bold tracking-[.14em] text-slate-400 uppercase"
             >
               Langkah 03
             </p>
@@ -686,162 +1057,67 @@
       </div>
     </section>
 
-    <!-- ================= FITUR ================= -->
-    <section id="fitur" class="py-20 md:py-24 bg-mist">
-      <div class="max-w-6xl mx-auto px-5">
-        <div class="grid md:grid-cols-2 gap-4 md:items-end reveal">
-          <div>
-            <span
-              class="inline-block bg-brand-soft text-brand text-[11px] font-bold tracking-wider uppercase px-3.5 py-1.5 rounded-full mb-4"
-              >Fitur</span
-            >
-            <h2
-              class="text-3xl sm:text-4xl md:text-[42px] font-extrabold tracking-tight leading-tight"
-            >
-              Lebih dari<br />sekadar
-              <span class="text-brand">titik di peta</span>
-            </h2>
-          </div>
-          <p
-            class="text-slate-500 text-sm md:text-right md:max-w-xs md:ml-auto"
-          >
-            Dari lokasi terkini sampai jejak perjalanan, semuanya jelas dalam
-            satu aplikasi.
-          </p>
-        </div>
-
-        <div class="mt-10 border-t border-slate-300/80">
-          <!-- item -->
-          <div
-            class="reveal grid grid-cols-[auto_1fr] md:grid-cols-[auto_1fr_1fr] items-center gap-x-5 md:gap-x-8 gap-y-2 py-7 border-b border-slate-300/80 group"
-          >
-            <span class="text-sm font-semibold text-slate-500 md:pl-4">01</span>
-            <h3
-              class="text-2xl sm:text-3xl font-extrabold tracking-tight group-hover:text-brand transition"
-            >
-              Live Tracking
-            </h3>
-            <p
-              class="col-span-2 md:col-span-1 text-sm text-slate-500 md:text-right md:max-w-sm md:ml-auto"
-            >
-              Posisi diperbarui tiap 10 detik. Lihat kendaraan bergerak di peta
-              secara real-time.
-            </p>
-          </div>
-          <div
-            class="reveal grid grid-cols-[auto_1fr] md:grid-cols-[auto_1fr_1fr] items-center gap-x-5 md:gap-x-8 gap-y-2 py-7 border-b border-slate-300/80 group"
-          >
-            <span class="text-sm font-semibold text-slate-500 md:pl-4">02</span>
-            <h3
-              class="text-2xl sm:text-3xl font-extrabold tracking-tight group-hover:text-brand transition"
-            >
-              Riwayat Perjalanan
-            </h3>
-            <p
-              class="col-span-2 md:col-span-1 text-sm text-slate-500 md:text-right md:max-w-sm md:ml-auto"
-            >
-              Simpan rute hingga 90 hari. Lihat jam berangkat, berhenti di mana,
-              dan berapa lama.
-            </p>
-          </div>
-          <div
-            class="reveal grid grid-cols-[auto_1fr] md:grid-cols-[auto_1fr_1fr] items-center gap-x-5 md:gap-x-8 gap-y-2 py-7 border-b border-slate-300/80 group"
-          >
-            <span class="text-sm font-semibold text-slate-500 md:pl-4">03</span>
-            <h3
-              class="text-2xl sm:text-3xl font-extrabold tracking-tight group-hover:text-brand transition"
-            >
-              Laporan Otomatis
-            </h3>
-            <p
-              class="col-span-2 md:col-span-1 text-sm text-slate-500 md:text-right md:max-w-sm md:ml-auto"
-            >
-              Export laporan harian/mingguan ke Excel &amp; PDF. Cocok untuk
-              audit dan klaim asuransi.
-            </p>
-          </div>
-          <div
-            class="reveal grid grid-cols-[auto_1fr] md:grid-cols-[auto_1fr_1fr] items-center gap-x-5 md:gap-x-8 gap-y-2 py-7 border-b border-slate-300/80 group"
-          >
-            <span class="text-sm font-semibold text-slate-500 md:pl-4">04</span>
-            <h3
-              class="text-2xl sm:text-3xl font-extrabold tracking-tight group-hover:text-brand transition"
-            >
-              Keamanan Data
-            </h3>
-            <p
-              class="col-span-2 md:col-span-1 text-sm text-slate-500 md:text-right md:max-w-sm md:ml-auto"
-            >
-              Enkripsi TLS 1.3, server di Indonesia, akses dua faktor. Data
-              lokasi tidak dijual ke pihak ketiga.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- ================= GALLERY ================= -->
-    <section id="gallery" class="py-20 md:py-24 bg-white">
-      <div class="max-w-6xl mx-auto px-5">
+    <section id="gallery" class="py-14 md:py-24 bg-white">
+      <div class="max-w-6xl mx-auto px-4 sm:px-5">
         <div class="text-center reveal">
-          <span
-            class="inline-block bg-brand-soft text-brand text-[11px] font-bold tracking-wider uppercase px-3.5 py-1.5 rounded-full mb-4"
-            >Gallery</span
-          >
-          <h2
-            class="text-3xl sm:text-4xl md:text-[42px] font-extrabold tracking-tight"
-          >
-            Lihat GeoTrack dari dekat
-          </h2>
-          <p class="mt-3 text-slate-500 text-sm sm:text-base">
-            Dari dashboard web sampai perangkat pelacaknya, semua bisa kamu
-            intip di sini.
-          </p>
+          <span class="inline-block bg-brand-soft text-brand text-[11px] font-bold tracking-wider uppercase px-3.5 py-1.5 rounded-full mb-4">Gallery</span>
+          <h2 class="text-[26px] leading-tight sm:text-4xl md:text-[42px] font-extrabold tracking-tight">Lihat GeoTrack dari dekat</h2>
+          <p class="mt-3 text-slate-500 text-sm sm:text-base">Dari dashboard web sampai perangkat pelacaknya, semua bisa kamu intip di sini.</p>
         </div>
 
-        <!--
-      Ganti div placeholder abu-abu dengan gambar:
-      <img src="foto.jpg" alt="..." class="w-full h-full object-cover rounded-3xl">
-    -->
-        <div class="mt-12 space-y-4 md:space-y-5">
+        <div class="mt-8 md:mt-12 space-y-3 sm:space-y-4 md:space-y-5">
           <!-- Baris 1 -->
-          <div class="grid grid-cols-1 sm:grid-cols-5 gap-4 md:gap-5">
-            <div
-              class="reveal sm:col-span-3 h-56 sm:h-64 md:h-[340px] rounded-3xl bg-[#D9D9D9] overflow-hidden"
-            ></div>
-            <div
-              class="reveal sm:col-span-2 h-56 sm:h-64 md:h-[340px] rounded-3xl bg-[#D9D9D9] overflow-hidden"
-            ></div>
+          <div class="grid grid-cols-1 sm:grid-cols-6 gap-3 sm:gap-4 md:gap-5">
+            <div class="reveal sm:col-span-3 h-48 sm:h-64 md:h-[340px] rounded-3xl bg-[#D9D9D9] overflow-hidden">
+              <img src="image1.png" alt="Galeri GeoTrack 1" class="w-full h-full object-cover" loading="lazy" />
+            </div>
+            <div class="reveal sm:col-span-3 h-48 sm:h-64 md:h-[340px] rounded-3xl bg-[#D9D9D9] overflow-hidden">
+              <img src="image5.png" alt="Galeri GeoTrack 2" class="w-full h-full object-cover" loading="lazy" />
+            </div>
           </div>
           <!-- Baris 2 -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-5">
-            <div
-              class="reveal h-56 sm:h-64 md:h-[340px] rounded-3xl bg-[#D9D9D9] overflow-hidden"
-            ></div>
-            <div
-              class="reveal h-56 sm:h-64 md:h-[340px] rounded-3xl bg-[#D9D9D9] overflow-hidden"
-            ></div>
-            <div
-              class="reveal h-56 sm:h-64 md:h-[340px] rounded-3xl bg-[#D9D9D9] overflow-hidden"
-            ></div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
+            <div class="reveal aspect-[9/16] rounded-3xl bg-[#D9D9D9] overflow-hidden">
+              <img src="image3.png" alt="Galeri GeoTrack 3" class="w-full h-full object-cover" loading="lazy" />
+            </div>
+            <div class="reveal aspect-[9/16] rounded-3xl bg-[#D9D9D9] overflow-hidden">
+              <img src="image4.png" alt="Galeri GeoTrack 4" class="w-full h-full object-cover" loading="lazy" />
+            </div>
+            <div class="reveal aspect-[9/16] rounded-3xl bg-[#D9D9D9] overflow-hidden">
+              <img src="image6.png" alt="Galeri GeoTrack 5" class="w-full h-full object-cover" loading="lazy" />
+            </div>
+            <div class="reveal aspect-[9/16] rounded-3xl bg-[#D9D9D9] overflow-hidden">
+              <img src="image7.png" alt="Galeri GeoTrack 6" class="w-full h-full object-cover" loading="lazy" />
+            </div>
           </div>
           <!-- Baris 3 -->
-          <div class="grid grid-cols-1 sm:grid-cols-5 gap-4 md:gap-5">
-            <div
-              class="reveal sm:col-span-2 h-56 sm:h-64 md:h-[340px] rounded-3xl bg-[#D9D9D9] overflow-hidden"
-            ></div>
-            <div
-              class="reveal sm:col-span-3 h-56 sm:h-64 md:h-[340px] rounded-3xl bg-[#D9D9D9] overflow-hidden"
-            ></div>
+          <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 sm:gap-4 md:gap-5">
+            <div class="reveal sm:col-span-2 h-48 sm:h-64 md:h-[318px] rounded-3xl bg-[#D9D9D9] overflow-hidden">
+              <img src="image9.png" alt="Galeri GeoTrack 7" class="w-full h-full object-cover" loading="lazy" />
+            </div>
+            <div class="reveal sm:col-span-3 h-48 sm:h-64 md:h-[318px] rounded-3xl bg-[#D9D9D9] overflow-hidden">
+              <img src="image8.png" alt="Galeri GeoTrack 8" class="w-full h-full object-cover" loading="lazy" />
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ================= FAQ ================= -->
-    <section id="faq" class="py-20 md:py-24 bg-mist">
+    <!-- ================= FAQ (background sama dengan hero) ================= -->
+    <section
+      id="faq"
+      class="relative overflow-hidden py-14 md:py-24 bg-gradient-to-b from-mist via-[#F3F8FF] to-white"
+    >
       <div
-        class="max-w-6xl mx-auto px-5 grid lg:grid-cols-2 gap-10 lg:gap-14 items-start"
+        class="absolute -top-24 -right-24 w-[420px] h-[420px] rounded-full bg-brand/10 blur-3xl pointer-events-none"
+      ></div>
+      <div
+        class="absolute -bottom-32 -left-24 w-[380px] h-[380px] rounded-full bg-geo/10 blur-3xl pointer-events-none"
+      ></div>
+
+      <div
+        class="relative max-w-6xl mx-auto px-4 sm:px-5 grid lg:grid-cols-2 gap-8 lg:gap-14 items-start"
       >
         <div class="reveal">
           <span
@@ -849,7 +1125,7 @@
             >FAQ</span
           >
           <h2
-            class="text-3xl sm:text-4xl md:text-[42px] font-extrabold tracking-tight leading-tight"
+            class="text-[26px] sm:text-4xl md:text-[42px] font-extrabold tracking-tight leading-tight"
           >
             Pertanyaan yang paling sering muncul
           </h2>
@@ -859,7 +1135,7 @@
           </p>
 
           <div
-            class="mt-3 bg-white rounded-2xl shadow-[0_12px_30px_rgba(15,23,42,.10)] p-2 sm:p-7 max-w-md"
+            class="mt-5 bg-white rounded-2xl shadow-[0_12px_30px_rgba(15,23,42,.10)] p-5 sm:p-7 max-w-md"
           >
             <h4 class="font-extrabold text-lg">Masih ragu?</h4>
             <p class="mt-1 text-[13px] text-slate-500 leading-relaxed">
@@ -870,7 +1146,7 @@
               href="https://wa.me/6282335640458?text=Halo%20GeoTrack%2C%20saya%20mau%20konsultasi"
               target="_blank"
               rel="noopener"
-              class="mt-3 flex items-center justify-center gap-2 bg-brand hover:bg-brand-dark text-white text-sm font-bold py-3 rounded-lg transition"
+              class="mt-4 flex items-center justify-center gap-2 bg-brand hover:bg-brand-dark text-white text-sm font-bold py-3.5 rounded-lg transition"
             >
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                 <path
@@ -886,12 +1162,12 @@
         </div>
 
         <!-- Accordion -->
-        <div class="reveal space-y-3" id="faqList">
+        <div class="reveal space-y-2.5 sm:space-y-3" id="faqList">
           <div
             class="faq-item bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
           >
             <button
-              class="faq-q w-full flex items-center justify-between gap-4 text-left px-5 py-4 text-sm font-bold"
+              class="faq-q w-full flex items-center justify-between gap-4 text-left px-4 sm:px-5 py-4 min-h-[56px] text-sm font-bold"
               aria-expanded="false"
             >
               Apakah butuh sinyal kuat? Bagaimana cakupannya?
@@ -910,7 +1186,7 @@
             <div class="faq-body">
               <div class="overflow-hidden">
                 <p
-                  class="px-5 pb-5 text-[13.5px] text-slate-500 leading-relaxed"
+                  class="px-4 sm:px-5 pb-5 text-[13.5px] text-slate-500 leading-relaxed"
                 >
                   GeoTrack memakai jaringan 4G LTE dengan fallback ke 3G/2G,
                   jadi cakupannya mengikuti operator seluler nasional. Di area
@@ -925,7 +1201,7 @@
             class="faq-item bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
           >
             <button
-              class="faq-q w-full flex items-center justify-between gap-4 text-left px-5 py-4 text-sm font-bold"
+              class="faq-q w-full flex items-center justify-between gap-4 text-left px-4 sm:px-5 py-4 min-h-[56px] text-sm font-bold"
               aria-expanded="false"
             >
               Perlu beli kartu SIM dan kuota sendiri?
@@ -944,7 +1220,7 @@
             <div class="faq-body">
               <div class="overflow-hidden">
                 <p
-                  class="px-5 pb-5 text-[13.5px] text-slate-500 leading-relaxed"
+                  class="px-4 sm:px-5 pb-5 text-[13.5px] text-slate-500 leading-relaxed"
                 >
                   Tidak. Setiap unit sudah termasuk kartu SIM data aktif selama
                   3 bulan pertama. Setelah itu, biaya data tergabung dalam
@@ -958,7 +1234,7 @@
             class="faq-item bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
           >
             <button
-              class="faq-q w-full flex items-center justify-between gap-4 text-left px-5 py-4 text-sm font-bold"
+              class="faq-q w-full flex items-center justify-between gap-4 text-left px-4 sm:px-5 py-4 min-h-[56px] text-sm font-bold"
               aria-expanded="false"
             >
               Susah tidak cara pasangnya? Bisa sendiri?
@@ -977,7 +1253,7 @@
             <div class="faq-body">
               <div class="overflow-hidden">
                 <p
-                  class="px-5 pb-5 text-[13.5px] text-slate-500 leading-relaxed"
+                  class="px-4 sm:px-5 pb-5 text-[13.5px] text-slate-500 leading-relaxed"
                 >
                   Bisa sendiri dalam 5 menit. Tempel dengan magnet di bawah jok
                   atau bagasi (tanpa alat), atau sambungkan ke aki lewat kabel
@@ -991,7 +1267,7 @@
             class="faq-item bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
           >
             <button
-              class="faq-q w-full flex items-center justify-between gap-4 text-left px-5 py-4 text-sm font-bold"
+              class="faq-q w-full flex items-center justify-between gap-4 text-left px-4 sm:px-5 py-4 min-h-[56px] text-sm font-bold"
               aria-expanded="false"
             >
               Garansinya bagaimana kalau alat rusak?
@@ -1010,7 +1286,7 @@
             <div class="faq-body">
               <div class="overflow-hidden">
                 <p
-                  class="px-5 pb-5 text-[13.5px] text-slate-500 leading-relaxed"
+                  class="px-4 sm:px-5 pb-5 text-[13.5px] text-slate-500 leading-relaxed"
                 >
                   Garansi resmi 12 bulan untuk kerusakan pabrikan, ditambah
                   garansi uang kembali 14 hari. Proses klaim garansi maksimal 7
@@ -1024,7 +1300,7 @@
             class="faq-item bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
           >
             <button
-              class="faq-q w-full flex items-center justify-between gap-4 text-left px-5 py-4 text-sm font-bold"
+              class="faq-q w-full flex items-center justify-between gap-4 text-left px-4 sm:px-5 py-4 min-h-[56px] text-sm font-bold"
               aria-expanded="false"
             >
               Apakah data lokasi saya aman?
@@ -1043,7 +1319,7 @@
             <div class="faq-body">
               <div class="overflow-hidden">
                 <p
-                  class="px-5 pb-5 text-[13.5px] text-slate-500 leading-relaxed"
+                  class="px-4 sm:px-5 pb-5 text-[13.5px] text-slate-500 leading-relaxed"
                 >
                   Ya. Transmisi dienkripsi TLS 1.3, data disimpan di server
                   dalam negeri, dan akun dilindungi verifikasi dua langkah. Data
@@ -1057,7 +1333,7 @@
             class="faq-item bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
           >
             <button
-              class="faq-q w-full flex items-center justify-between gap-4 text-left px-5 py-4 text-sm font-bold"
+              class="faq-q w-full flex items-center justify-between gap-4 text-left px-4 sm:px-5 py-4 min-h-[56px] text-sm font-bold"
               aria-expanded="false"
             >
               Bisa dipakai untuk banyak kendaraan sekaligus?
@@ -1076,7 +1352,7 @@
             <div class="faq-body">
               <div class="overflow-hidden">
                 <p
-                  class="px-5 pb-5 text-[13.5px] text-slate-500 leading-relaxed"
+                  class="px-4 sm:px-5 pb-5 text-[13.5px] text-slate-500 leading-relaxed"
                 >
                   Bisa. Satu akun admin dapat mengelola banyak unit sekaligus,
                   mengelompokkannya per cabang atau proyek, dan memberi akses
@@ -1092,13 +1368,13 @@
     <!-- ================= FOOTER / CONTACT ================= -->
     <footer id="contact" class="bg-[#0F172A] border-t border-slate-200">
       <div
-        class="max-w-6xl mx-auto px-5 py-12 flex flex-col items-center text-center"
+        class="max-w-6xl mx-auto px-4 sm:px-5 py-10 md:py-12 flex flex-col items-center text-center"
       >
         <a href="#home" class="flex items-center gap-2.5">
           <span
             class="w-10 h-10 rounded-xl bg-gradient-to-br from-geo to-brand grid place-items-center shadow-md"
           >
-            <img src="GeoTrack_Navigation_Logo_No_White_Edges.png" alt="">
+            <img src="GeoTrack_Navigation_Logo_No_White_Edges.png" alt="" />
           </span>
           <span class="text-xl font-extrabold tracking-tight"
             ><span class="text-geo">Geo</span
@@ -1107,25 +1383,23 @@
         </a>
 
         <nav
-          class="mt-6 flex flex-wrap justify-center gap-x-7 gap-y-3 text-sm font-semibold text-slate-200"
+          class="mt-6 flex flex-wrap justify-center gap-x-6 gap-y-1 text-sm font-semibold text-slate-200"
         >
-          <a href="#home" class="hover:text-brand transition">Home</a>
-          <a href="#cara-kerja" class="hover:text-brand transition"
-            >Cara Kerja</a
-          >
-          <a href="#fitur" class="hover:text-brand transition">Fitur</a>
-          <a href="#gallery" class="hover:text-brand transition">Gallery</a>
-          <a href="#faq" class="hover:text-brand transition">FAQ</a>
-          <a href="#contact" class="hover:text-brand transition">Contact</a>
+          <a href="#home" class="py-2 hover:text-brand transition">Home</a>
+          <a href="#benefit" class="py-2 hover:text-brand transition">Benefit</a>
+          <a href="#fitur" class="py-2 hover:text-brand transition">Fitur</a>
+          <a href="#cara-kerja" class="py-2 hover:text-brand transition">Cara Kerja</a>
+          <a href="#gallery" class="py-2 hover:text-brand transition">Gallery</a>
+          <a href="#faq" class="py-2 hover:text-brand transition">FAQ</a>
         </nav>
 
-        <div class="mt-6 flex items-center gap-5 text-white">
+        <div class="mt-4 flex items-center gap-2 text-white">
           <a
-            href="https://wa.me/6281234567890"
+            href="https://wa.me/6282335640458"
             target="_blank"
             rel="noopener"
             aria-label="WhatsApp"
-            class="hover:text-brand transition"
+            class="w-11 h-11 grid place-items-center hover:text-brand transition"
           >
             <svg
               class="w-6 h-6"
@@ -1145,7 +1419,7 @@
           <a
             href="#"
             aria-label="Instagram"
-            class="hover:text-brand transition"
+            class="w-11 h-11 grid place-items-center hover:text-brand transition"
           >
             <svg
               class="w-5 h-5"
@@ -1167,7 +1441,11 @@
               />
             </svg>
           </a>
-          <a href="#" aria-label="YouTube" class="hover:text-brand transition">
+          <a
+            href="#"
+            aria-label="YouTube"
+            class="w-11 h-11 grid place-items-center hover:text-brand transition"
+          >
             <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
               <path
                 d="M23 7.5a3 3 0 0 0-2.1-2.1C19 5 12 5 12 5s-7 0-8.9.4A3 3 0 0 0 1 7.5 31 31 0 0 0 .6 12 31 31 0 0 0 1 16.5a3 3 0 0 0 2.1 2.1C5 19 12 19 12 19s7 0 8.9-.4a3 3 0 0 0 2.1-2.1A31 31 0 0 0 23.4 12 31 31 0 0 0 23 7.5ZM9.8 15.3V8.7l5.7 3.3-5.7 3.3Z"
@@ -1176,7 +1454,7 @@
           </a>
         </div>
 
-        <p class="mt-8 text-xs text-slate-300">
+        <p class="mt-6 text-xs text-slate-300">
           © <span id="year">2026</span> GeoTrack. All rights reserved.
         </p>
       </div>
@@ -1186,14 +1464,20 @@
       /* Menu mobile */
       const burger = document.getElementById("burger");
       const mobileMenu = document.getElementById("mobileMenu");
+      const setMenu = (open) => {
+        mobileMenu.classList.toggle("hidden", !open);
+        burger.setAttribute("aria-expanded", String(open));
+        header.classList.toggle("bg-white", open);
+      };
       burger.addEventListener("click", () =>
-        mobileMenu.classList.toggle("hidden"),
+        setMenu(mobileMenu.classList.contains("hidden")),
       );
       mobileMenu
         .querySelectorAll("a")
-        .forEach((a) =>
-          a.addEventListener("click", () => mobileMenu.classList.add("hidden")),
-        );
+        .forEach((a) => a.addEventListener("click", () => setMenu(false)));
+      window.addEventListener("resize", () => {
+        if (window.innerWidth >= 768) setMenu(false);
+      });
 
       /* FAQ accordion (satu terbuka sekaligus) */
       const faqItems = document.querySelectorAll(".faq-item");
@@ -1222,19 +1506,12 @@
             }
           });
         },
-        { threshold: 0.12 },
+        { threshold: 0.08 },
       );
       document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
 
       /* Highlight menu aktif saat scroll */
-      const sections = [
-        "home",
-        "cara-kerja",
-        "fitur",
-        "gallery",
-        "faq",
-        "contact",
-      ].map((id) => document.getElementById(id));
+      const sections = ["home", "benefit", "fitur", "cara-kerja", "gallery", "faq", "contact"].map((id) => document.getElementById(id));
       const links = document.querySelectorAll("#navLinks .nav-link");
       window.addEventListener(
         "scroll",
@@ -1250,6 +1527,32 @@
         },
         { passive: true },
       );
+
+      /* Tab Benefit: Running / Rental */
+      const benefitTabs = [...document.querySelectorAll(".benefit-tab")];
+      const selectTab = (tab) => {
+        benefitTabs.forEach((b) => {
+          const on = b === tab;
+          b.setAttribute("aria-selected", String(on));
+          b.tabIndex = on ? 0 : -1;
+          b.classList.toggle("bg-white", on);
+          b.classList.toggle("text-brand", on);
+          b.classList.toggle("shadow", on);
+          b.classList.toggle("text-slate-500", !on);
+          document
+            .getElementById(b.getAttribute("aria-controls"))
+            .classList.toggle("hidden", !on);
+        });
+      };
+      benefitTabs.forEach((b, i) => {
+        b.addEventListener("click", () => selectTab(b));
+        b.addEventListener("keydown", (e) => {
+          if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+          const next = benefitTabs[(i + (e.key === "ArrowRight" ? 1 : -1) + benefitTabs.length) % benefitTabs.length];
+          next.focus();
+          selectTab(next);
+        });
+      });
 
       document.getElementById("year").textContent = new Date().getFullYear();
 
